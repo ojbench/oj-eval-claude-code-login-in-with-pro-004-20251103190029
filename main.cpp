@@ -442,7 +442,8 @@ private:
     }
 
     string& getCurrentSelectedISBN() {
-        static string empty = "";
+        static string empty;
+        empty = "";  // Reset to ensure it's always empty
         if (loginStack.empty()) return empty;
         return loginStack.back().selectedISBN;
     }
@@ -452,11 +453,36 @@ public:
         string cmd = trim(line);
         if (cmd.empty()) return;
 
+        // Parse tokens, keeping quoted strings together
         vector<string> tokens;
-        stringstream ss(cmd);
-        string token;
-        while (ss >> token) {
-            tokens.push_back(token);
+        size_t pos = 0;
+        while (pos < cmd.length()) {
+            // Skip whitespace
+            while (pos < cmd.length() && cmd[pos] == ' ') pos++;
+            if (pos >= cmd.length()) break;
+
+            // Find token
+            string token;
+            if (cmd[pos] == '"') {
+                // This shouldn't happen - quotes should be within a parameter
+                // But handle it anyway
+                pos++;
+                while (pos < cmd.length() && cmd[pos] != '"') {
+                    token += cmd[pos++];
+                }
+                if (pos < cmd.length()) pos++; // Skip closing quote
+            } else {
+                // Regular token - read until space
+                size_t start = pos;
+                // Check if this token contains a quoted string
+                bool inQuote = false;
+                while (pos < cmd.length() && (inQuote || cmd[pos] != ' ')) {
+                    if (cmd[pos] == '"') inQuote = !inQuote;
+                    pos++;
+                }
+                token = cmd.substr(start, pos - start);
+            }
+            if (!token.empty()) tokens.push_back(token);
         }
 
         if (tokens.empty()) return;
