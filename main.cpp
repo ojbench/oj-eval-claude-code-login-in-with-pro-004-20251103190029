@@ -96,15 +96,26 @@ bool isValidQuantity(const string& s) {
 
 bool isValidPrice(const string& s) {
     if (s.empty() || s.length() > 13) return false;
-    int dotCount = 0;
-    for (char c : s) {
-        if (c == '.') {
-            dotCount++;
-            if (dotCount > 1) return false;
-        } else if (!isdigit(c)) {
-            return false;
+    size_t dotPos = s.find('.');
+
+    if (dotPos == string::npos) {
+        // No decimal point - must be all digits
+        for (char c : s) {
+            if (!isdigit(c)) return false;
         }
+        return true;
     }
+
+    // Has decimal point
+    if (dotPos == 0) return false; // Can't start with '.'
+    if (dotPos == s.length() - 1) return false; // Can't end with '.'
+    if (s.find('.', dotPos + 1) != string::npos) return false; // Multiple dots
+
+    // Check all chars except dot are digits
+    for (size_t i = 0; i < s.length(); i++) {
+        if (i != dotPos && !isdigit(s[i])) return false;
+    }
+
     return true;
 }
 
