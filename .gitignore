@@ -4,7 +4,6 @@ cmake_install.cmake
 Makefile
 code
 *.dat
-*.txt
 logs.txt
 transactions.dat
 accounts.dat
