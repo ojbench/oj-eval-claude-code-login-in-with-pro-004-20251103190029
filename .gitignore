@@ -9,3 +9,5 @@ transactions.dat
 accounts.dat
 books.dat
 submission_ids.log
+output_*.txt
+test_output*.txt
